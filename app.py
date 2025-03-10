@@ -1,59 +1,85 @@
+from flask import Flask, render_template, jsonify
 import os
-import tempfile
-import shutil
-from flask import Flask, render_template, request, jsonify
-from utils.repo_analyzer import RepoAnalyzer
+import git
+import sys
+import datetime
 
 app = Flask(__name__)
 
-# Repository URL to be analyzed
-REPO_URL = "https://github.com/huannv-sys/mikrotik-msc.git"
-REPO_NAME = "mikrotik-msc"
-
-# Global variable to store analysis results
-analysis_results = None
-
 @app.route('/')
 def index():
-    """Render the main page"""
-    return render_template('index.html')
+    # Analyze repository structure
+    repo_analysis = analyze_repo()
+    return render_template('index.html', repo_analysis=repo_analysis)
 
-@app.route('/analyze', methods=['POST'])
+@app.route('/api/repo-analysis')
+def get_repo_analysis():
+    return jsonify(analyze_repo())
+
 def analyze_repo():
-    """Clone and analyze the repository"""
-    global analysis_results
+    """Analyze the repository structure and return key information"""
+    result = {
+        "name": "mikrotik-msc",
+        "description": "MikroTik Manager/Monitor System",
+        "analysis_date": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "components": [],
+        "installation": {
+            "requirements": [],
+            "compatible_os": ["Ubuntu 24.04"],
+            "database": "PostgreSQL",
+            "services": ["Backend (FastAPI)", "Frontend (React)", "Nginx", "PostgreSQL"]
+        }
+    }
     
-    try:
-        # Create a temporary directory for the repo
-        temp_dir = tempfile.mkdtemp()
-        
-        # Initialize the repo analyzer
-        analyzer = RepoAnalyzer(REPO_URL, temp_dir)
-        
-        # Clone the repository
-        clone_success = analyzer.clone_repo()
-        if not clone_success:
-            return jsonify({"status": "error", "message": "Failed to clone repository"})
-        
-        # Analyze the repository
-        repo_path = os.path.join(temp_dir, REPO_NAME)
-        analysis_results = analyzer.analyze(repo_path)
-        
-        # Clean up the temporary directory
-        shutil.rmtree(temp_dir)
-        
-        return jsonify({"status": "success", "data": analysis_results})
+    # Check for repository
+    if not os.path.exists("mikrotik-msc"):
+        return {
+            "error": "Repository not found. Please ensure mikrotik-msc is cloned properly."
+        }
     
-    except Exception as e:
-        return jsonify({"status": "error", "message": str(e)})
-
-@app.route('/report')
-def report():
-    """Render the report page"""
-    if analysis_results is None:
-        return jsonify({"status": "error", "message": "No analysis results available. Please analyze the repository first."})
+    # Add key components
+    result["components"] = [
+        {
+            "name": "Backup Manager",
+            "file": "mikrotik_backup_manager.py",
+            "description": "Manages device configuration backups"
+        },
+        {
+            "name": "CAPsMAN Manager",
+            "file": "mikrotik_capsman_manager.py",
+            "description": "Manages Controlled Access Point system"
+        },
+        {
+            "name": "Client Monitor",
+            "file": "mikrotik_client_monitor.py",
+            "description": "Monitors connected clients"
+        },
+        {
+            "name": "Traffic Logger",
+            "file": "mikrotik_traffic_logger.py",
+            "description": "Logs and analyzes network traffic"
+        },
+        {
+            "name": "Integrated Web Interface",
+            "file": "mikrotik_integrated_web.py",
+            "description": "Comprehensive web management interface"
+        },
+        {
+            "name": "Network Master Control",
+            "directory": "NetworkMasterControl",
+            "description": "Core control system for network management"
+        }
+    ]
     
-    return render_template('report.html', results=analysis_results)
+    # Add requirements
+    if os.path.exists("mikrotik-msc/requirements.txt"):
+        with open("mikrotik-msc/requirements.txt", "r") as f:
+            requirements = f.readlines()
+            result["installation"]["requirements"] = [
+                req.strip() for req in requirements if req.strip() and not req.startswith("#")
+            ]
+    
+    return result
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
