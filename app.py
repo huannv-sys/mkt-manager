@@ -1,10 +1,41 @@
-from flask import Flask, render_template, jsonify, request, redirect, url_for
+from flask import Flask, render_template, jsonify, request, redirect, url_for, session, flash, send_file
 import os
 import git
 import sys
 import datetime
+import json
+import logging
+from functools import wraps
+from werkzeug.utils import secure_filename
 
+# Các module tự tạo
+import config
+from utils.auth import login_required, admin_required, has_permission
+from utils.mikrotik_api import MikroTikAPI
+from utils.notifications import send_system_notification
+
+# Thiết lập logging
+logging.basicConfig(
+    level=getattr(logging, config.LOG_LEVEL),
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler(config.LOG_FILE),
+        logging.StreamHandler(sys.stdout)
+    ]
+)
+
+# Tạo logger
+logger = logging.getLogger('mikrotik_msc')
+
+# Khởi tạo ứng dụng Flask
 app = Flask(__name__)
+app.secret_key = config.SECRET_KEY
+app.config['SESSION_TYPE'] = config.SESSION_TYPE
+app.config['UPLOAD_FOLDER'] = os.path.join(config.BASE_DIR, 'uploads')
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB
+
+# Đảm bảo thư mục uploads tồn tại
+os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 @app.route('/')
 def index():
@@ -248,6 +279,283 @@ def analyze_repo():
             ]
     
     return result
+
+# Route cho trang cài đặt
+@app.route('/settings/general')
+def settings_general():
+    return render_template('settings/general.html')
+
+@app.route('/settings/connection')
+def settings_connection():
+    return render_template('settings/connection.html')
+
+@app.route('/settings/notification')
+def settings_notification():
+    return render_template('settings/notification.html', page='notification')
+
+@app.route('/settings/users')
+def settings_users():
+    return render_template('settings/users.html', page='users')
+
+# Route cho trang backup
+@app.route('/backup/manager')
+def backup_manager():
+    return render_template('backup/manager.html')
+
+# Route cho trang logs
+@app.route('/logs/system')
+def logs_system():
+    return render_template('logs/system.html')
+
+@app.route('/logs/firewall')
+def logs_firewall():
+    return render_template('logs/firewall.html')
+
+@app.route('/logs/mikrotik')
+def logs_mikrotik():
+    return render_template('logs/mikrotik.html')
+
+@app.route('/logs/application')
+def logs_application():
+    return render_template('logs/application.html')
+
+# API cho settings
+@app.route('/api/settings/general', methods=['GET', 'POST'])
+def api_settings_general():
+    if request.method == 'GET':
+        # Mô phỏng dữ liệu cài đặt
+        settings = {
+            'display': {
+                'refreshInterval': 5,
+                'pageSize': 25,
+                'chartDataPoints': 30,
+                'darkMode': False
+            },
+            'system': {
+                'logLevel': 'INFO',
+                'logRetention': 30,
+                'language': 'vi',
+                'autoUpdate': True
+            },
+            'alerts': {
+                'cpuThreshold': 80,
+                'memoryThreshold': 80,
+                'diskThreshold': 90,
+                'interfaceThreshold': 80,
+                'enableClientAlerts': True,
+                'enableFirewallAlerts': True
+            }
+        }
+        return jsonify({'success': True, 'data': settings})
+    elif request.method == 'POST':
+        # Xử lý lưu cài đặt
+        try:
+            settings = request.json
+            # TODO: Lưu cài đặt vào cơ sở dữ liệu
+            logger.info(f"Đã lưu cài đặt: {settings}")
+            return jsonify({'success': True})
+        except Exception as e:
+            logger.error(f"Lỗi khi lưu cài đặt: {str(e)}")
+            return jsonify({'success': False, 'error': str(e)})
+
+@app.route('/api/settings/reset', methods=['POST'])
+def api_settings_reset():
+    try:
+        # TODO: Reset cài đặt về mặc định
+        logger.info("Đã reset cài đặt về mặc định")
+        return jsonify({'success': True})
+    except Exception as e:
+        logger.error(f"Lỗi khi reset cài đặt: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)})
+
+# API cho backup
+@app.route('/api/backup/list', methods=['GET'])
+def api_backup_list():
+    # Mô phỏng danh sách backup
+    backups = [
+        {
+            'id': '1',
+            'filename': 'backup_20250310_080000.backup',
+            'deviceName': 'Router Chính',
+            'size': 2621440,  # 2.5 MB in bytes
+            'createdAt': '2025-03-10T08:00:00',
+            'type': 'Manual'
+        },
+        {
+            'id': '2',
+            'filename': 'backup_20250309_080000.backup',
+            'deviceName': 'Router Chính',
+            'size': 2516582,  # 2.4 MB in bytes
+            'createdAt': '2025-03-09T08:00:00',
+            'type': 'Scheduled'
+        }
+    ]
+    return jsonify({'success': True, 'data': backups})
+
+@app.route('/api/backup/exports', methods=['GET'])
+def api_backup_exports():
+    # Mô phỏng danh sách export
+    exports = [
+        {
+            'id': '1',
+            'filename': 'export_20250310_080000.rsc',
+            'deviceName': 'Router Chính',
+            'size': 46080,  # 45 KB in bytes
+            'createdAt': '2025-03-10T08:00:00',
+            'type': 'Full'
+        },
+        {
+            'id': '2',
+            'filename': 'export_20250309_080000.rsc',
+            'deviceName': 'Router Chính',
+            'size': 45056,  # 44 KB in bytes
+            'createdAt': '2025-03-09T08:00:00',
+            'type': 'Compact'
+        }
+    ]
+    return jsonify({'success': True, 'data': exports})
+
+@app.route('/api/backup/schedules', methods=['GET'])
+def api_backup_schedules():
+    # Mô phỏng danh sách lịch backup
+    schedules = [
+        {
+            'id': '1',
+            'name': 'Backup Hàng Ngày',
+            'deviceName': 'Router Chính',
+            'deviceId': '1',
+            'type': 'daily',
+            'time': '03:00',
+            'active': True,
+            'nextRun': '2025-03-11T03:00:00',
+            'retention': 7,
+            'includeSensitive': False
+        },
+        {
+            'id': '2',
+            'name': 'Backup Hàng Tuần',
+            'deviceName': 'Router Phòng Kỹ Thuật',
+            'deviceId': '2',
+            'type': 'weekly',
+            'weekday': '0',  # Sunday
+            'time': '04:00',
+            'active': False,
+            'nextRun': '2025-03-16T04:00:00',
+            'retention': 4,
+            'includeSensitive': False
+        }
+    ]
+    return jsonify({'success': True, 'data': schedules})
+
+# API cho logs
+@app.route('/api/logs/system', methods=['GET'])
+def api_logs_system():
+    # Mô phỏng dữ liệu logs với phân trang
+    page = int(request.args.get('page', 1))
+    limit = int(request.args.get('limit', 50))
+    level = request.args.get('level', '')
+    topic = request.args.get('topic', '')
+    search_text = request.args.get('searchText', '')
+    
+    # Mô phỏng dữ liệu logs
+    all_logs = [
+        {
+            'id': '1',
+            'timestamp': '2025-03-10T08:30:15',
+            'level': 'Info',
+            'topic': 'System',
+            'device': 'Server',
+            'message': 'Hệ thống khởi động thành công'
+        },
+        {
+            'id': '2',
+            'timestamp': '2025-03-10T08:25:10',
+            'level': 'Warning',
+            'topic': 'Auth',
+            'device': 'Router Chính',
+            'message': 'Đăng nhập thất bại từ IP 192.168.1.100'
+        },
+        {
+            'id': '3',
+            'timestamp': '2025-03-10T08:20:05',
+            'level': 'Error',
+            'topic': 'Network',
+            'device': 'Router Chính',
+            'message': 'Không thể kết nối đến thiết bị ngoại vi trên cổng ether2'
+        },
+        {
+            'id': '4',
+            'timestamp': '2025-03-10T08:15:30',
+            'level': 'Info',
+            'topic': 'System',
+            'device': 'Router Phòng Kỹ Thuật',
+            'message': 'Cập nhật firmware thành công lên phiên bản 7.11.2'
+        },
+        {
+            'id': '5',
+            'timestamp': '2025-03-10T08:10:22',
+            'level': 'Info',
+            'topic': 'Auth',
+            'device': 'Router Chính',
+            'message': 'Đăng nhập thành công từ IP 192.168.1.10 (admin)'
+        },
+        {
+            'id': '6',
+            'timestamp': '2025-03-10T08:05:18',
+            'level': 'Warning',
+            'topic': 'Services',
+            'device': 'Router Chính',
+            'message': 'Dịch vụ DHCP tạm dừng'
+        },
+        {
+            'id': '7',
+            'timestamp': '2025-03-10T08:00:05',
+            'level': 'Info',
+            'topic': 'Services',
+            'device': 'Router Chính',
+            'message': 'Dịch vụ DHCP hoạt động trở lại'
+        }
+    ]
+    
+    # Lọc logs nếu có tham số
+    filtered_logs = all_logs
+    if level:
+        filtered_logs = [log for log in filtered_logs if log['level'].lower() == level.lower()]
+    if topic:
+        filtered_logs = [log for log in filtered_logs if log['topic'].lower() == topic.lower()]
+    if search_text:
+        filtered_logs = [log for log in filtered_logs if search_text.lower() in log['message'].lower()]
+    
+    # Tính toán phân trang
+    total = len(filtered_logs)
+    total_pages = (total + limit - 1) // limit
+    start = (page - 1) * limit
+    end = min(start + limit, total)
+    
+    # Trả về kết quả
+    return jsonify({
+        'success': True,
+        'data': {
+            'logs': filtered_logs[start:end],
+            'pagination': {
+                'total': total,
+                'totalPages': total_pages,
+                'currentPage': page,
+                'limit': limit
+            }
+        }
+    })
+
+# API cho các trang khác sẽ được thêm vào sau
+
+# Xử lý lỗi
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('errors/404.html'), 404
+
+@app.errorhandler(500)
+def internal_server_error(e):
+    return render_template('errors/500.html'), 500
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

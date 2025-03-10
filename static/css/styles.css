@@ -1,0 +1,304 @@
+/**
+ * CSS chung cho MikroTik MSC
+ */
+
+/* Biến CSS */
+:root {
+    --primary-color: #007bff;
+    --secondary-color: #6c757d;
+    --success-color: #28a745;
+    --danger-color: #dc3545;
+    --warning-color: #ffc107;
+    --info-color: #17a2b8;
+    --light-color: #f8f9fa;
+    --dark-color: #343a40;
+    --sidebar-width: 250px;
+    --header-height: 56px;
+    --footer-height: 60px;
+    --border-radius: 0.25rem;
+    --transition-speed: 0.3s;
+}
+
+/* Thiết lập chung */
+html, body {
+    height: 100%;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    padding-top: 0;
+    overflow-x: hidden;
+}
+
+/* Sidebar */
+#sidebar {
+    min-height: 100vh;
+    padding-top: 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 100;
+    transition: all var(--transition-speed) ease;
+}
+
+#sidebar .nav-link {
+    color: rgba(255, 255, 255, 0.75);
+    padding: 0.75rem 1rem;
+    transition: all var(--transition-speed) ease;
+}
+
+#sidebar .nav-link:hover {
+    color: white;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: var(--border-radius);
+}
+
+#sidebar .nav-link.active {
+    color: white;
+    background-color: var(--primary-color);
+    border-radius: var(--border-radius);
+}
+
+/* Main content */
+main {
+    padding-bottom: 1.5rem;
+}
+
+/* Vùng chứa nội dung chính */
+.main-content {
+    margin-left: var(--sidebar-width);
+    transition: all var(--transition-speed) ease;
+}
+
+/* Cards */
+.card {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    border-radius: var(--border-radius);
+    margin-bottom: 1.5rem;
+}
+
+.card-header {
+    background-color: rgba(0, 0, 0, 0.03);
+    padding: 0.75rem 1.25rem;
+    font-weight: 500;
+}
+
+/* Bảng */
+.table th {
+    font-weight: 500;
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(0, 0, 0, 0.03);
+}
+
+/* Buttons */
+.btn {
+    border-radius: var(--border-radius);
+    font-weight: 500;
+    transition: all var(--transition-speed) ease;
+}
+
+/* Biểu đồ */
+.chart-container {
+    position: relative;
+    height: 300px;
+    margin-bottom: 1.5rem;
+}
+
+/* Widgets */
+.widget {
+    padding: 1.25rem;
+    border-radius: var(--border-radius);
+    margin-bottom: 1.5rem;
+    background-color: white;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.widget-title {
+    font-size: 1.25rem;
+    font-weight: 500;
+    margin-bottom: 1rem;
+}
+
+.widget-value {
+    font-size: 2rem;
+    font-weight: 300;
+    margin-bottom: 0.5rem;
+}
+
+.widget-icon {
+    font-size: 2.5rem;
+    opacity: 0.5;
+}
+
+/* Progress bars */
+.progress {
+    height: 0.75rem;
+    border-radius: var(--border-radius);
+    margin-bottom: 0.5rem;
+}
+
+/* Forms */
+.form-control, .form-select {
+    border-radius: var(--border-radius);
+}
+
+/* Spinner loading */
+.loading-spinner {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+/* Modals */
+.modal-content {
+    border-radius: var(--border-radius);
+}
+
+.modal-header {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.modal-footer {
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+/* Thông báo */
+.toast-container {
+    z-index: 1080;
+}
+
+/* IP Address */
+.ip-badge {
+    font-family: monospace;
+    font-size: 0.9rem;
+    padding: 0.25rem 0.5rem;
+    background-color: var(--light-color);
+    border-radius: var(--border-radius);
+}
+
+/* MAC Address */
+.mac-badge {
+    font-family: monospace;
+    font-size: 0.9rem;
+    padding: 0.25rem 0.5rem;
+    background-color: var(--info-color);
+    color: white;
+    border-radius: var(--border-radius);
+}
+
+/* Status indicators */
+.status-badge {
+    display: inline-block;
+    width: 0.75rem;
+    height: 0.75rem;
+    border-radius: 50%;
+    margin-right: 0.5rem;
+}
+
+.status-active {
+    background-color: var(--success-color);
+}
+
+.status-inactive {
+    background-color: var(--danger-color);
+}
+
+.status-warning {
+    background-color: var(--warning-color);
+}
+
+/* Firewall rules */
+.firewall-rule {
+    padding: 0.75rem;
+    margin-bottom: 0.75rem;
+    border-radius: var(--border-radius);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.firewall-rule:hover {
+    background-color: rgba(0, 0, 0, 0.03);
+}
+
+.firewall-rule.disabled {
+    opacity: 0.6;
+}
+
+/* Code blocks */
+pre {
+    background-color: var(--dark-color);
+    color: var(--light-color);
+    padding: 1rem;
+    border-radius: var(--border-radius);
+    white-space: pre-wrap;
+    overflow-x: auto;
+}
+
+/* Dark Mode */
+body.dark-mode {
+    background-color: #1a1a1a;
+    color: #f0f0f0;
+}
+
+body.dark-mode .card {
+    background-color: #2a2a2a;
+    border-color: #303030;
+}
+
+body.dark-mode .card-header {
+    background-color: #303030;
+    border-color: #404040;
+}
+
+body.dark-mode .table {
+    color: #f0f0f0;
+}
+
+body.dark-mode .table th {
+    background-color: #303030;
+}
+
+body.dark-mode .table-hover tbody tr:hover {
+    background-color: #363636;
+}
+
+body.dark-mode .form-control,
+body.dark-mode .form-select {
+    background-color: #303030;
+    border-color: #404040;
+    color: #f0f0f0;
+}
+
+body.dark-mode .modal-content {
+    background-color: #2a2a2a;
+    border-color: #404040;
+}
+
+body.dark-mode .widget {
+    background-color: #2a2a2a;
+    color: #f0f0f0;
+}
+
+/* Responsive */
+@media (max-width: 767.98px) {
+    #sidebar {
+        margin-left: calc(-1 * var(--sidebar-width));
+    }
+    
+    #sidebar.show {
+        margin-left: 0;
+    }
+    
+    .main-content {
+        margin-left: 0;
+    }
+}

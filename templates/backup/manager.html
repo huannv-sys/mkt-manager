@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MikroTik MSC - Quản Lý Backup</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-dark sidebar collapse">
+                <div class="position-sticky pt-3">
+                    <div class="text-center mb-4">
+                        <h4 class="text-white">MikroTik MSC</h4>
+                        <p class="text-muted">Management System Center</p>
+                    </div>
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/monitoring/dashboard">
+                                <i class="fa-solid fa-gauge-high me-2"></i>
+                                Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/monitoring/clients">
+                                <i class="fa-solid fa-laptop me-2"></i>
+                                Clients
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/monitoring/interfaces">
+                                <i class="fa-solid fa-network-wired me-2"></i>
+                                Interfaces
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/monitoring/ip">
+                                <i class="fa-solid fa-sitemap me-2"></i>
+                                IP
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/management/firewall">
+                                <i class="fa-solid fa-shield-halved me-2"></i>
+                                Firewall
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/logs/system">
+                                <i class="fa-solid fa-clipboard-list me-2"></i>
+                                Logs
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="/backup/manager">
+                                <i class="fa-solid fa-floppy-disk me-2"></i>
+                                Backup
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/settings/general">
+                                <i class="fa-solid fa-gear me-2"></i>
+                                Settings
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Main Content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">Quản Lý Backup</h1>
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <div class="btn-group me-2">
+                            <button type="button" id="createBackupBtn" class="btn btn-sm btn-primary">
+                                <i class="fa-solid fa-plus me-1"></i> Tạo Backup
+                            </button>
+                            <button type="button" id="createExportBtn" class="btn btn-sm btn-info">
+                                <i class="fa-solid fa-file-export me-1"></i> Xuất Cấu Hình
+                            </button>
+                            <button type="button" id="uploadBackupBtn" class="btn btn-sm btn-success">
+                                <i class="fa-solid fa-upload me-1"></i> Tải Lên Backup
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Backup Navigation -->
+                <ul class="nav nav-tabs mb-4">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#backups" data-bs-toggle="tab">
+                            <i class="fa-solid fa-floppy-disk me-1"></i> Backups
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#exports" data-bs-toggle="tab">
+                            <i class="fa-solid fa-file-export me-1"></i> Exports
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#schedules" data-bs-toggle="tab">
+                            <i class="fa-solid fa-calendar me-1"></i> Lịch Backup
+                        </a>
+                    </li>
+                </ul>
+
+                <!-- Tab Content -->
+                <div class="tab-content">
+                    <!-- Backups Tab -->
+                    <div class="tab-pane fade show active" id="backups">
+                        <div class="row mb-4">
+                            <div class="col-md-12">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5 class="mb-0">Danh Sách Backup</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="table-responsive">
+                                            <table class="table table-hover" id="backupsTable">
+                                                <thead>
+                                                    <tr>
+                                                        <th scope="col">Tên File</th>
+                                                        <th scope="col">Thiết Bị</th>
+                                                        <th scope="col">Kích Thước</th>
+                                                        <th scope="col">Ngày Tạo</th>
+                                                        <th scope="col">Loại</th>
+                                                        <th scope="col">Thao Tác</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td>backup_20250310_080000.backup</td>
+                                                        <td>Router Chính</td>
+                                                        <td>2.5 MB</td>
+                                                        <td>10/03/2025 08:00:00</td>
+                                                        <td>Manual</td>
+                                                        <td>
+                                                            <button class="btn btn-sm btn-success download-backup" data-id="1">
+                                                                <i class="fa-solid fa-download"></i>
+                                                            </button>
+                                                            <button class="btn btn-sm btn-primary restore-backup" data-id="1">
+                                                                <i class="fa-solid fa-sync"></i>
+                                                            </button>
+                                                            <button class="btn btn-sm btn-danger delete-backup" data-id="1">
+                                                                <i class="fa-solid fa-trash"></i>
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>backup_20250309_080000.backup</td>
+                                                        <td>Router Chính</td>
+                                                        <td>2.4 MB</td>
+                                                        <td>09/03/2025 08:00:00</td>
+                                                        <td>Scheduled</td>
+                                                        <td>
+                                                            <button class="btn btn-sm btn-success download-backup" data-id="2">
+                                                                <i class="fa-solid fa-download"></i>
+                                                            </button>
+                                                            <button class="btn btn-sm btn-primary restore-backup" data-id="2">
+                                                                <i class="fa-solid fa-sync"></i>
+                                                            </button>
+                                                            <button class="btn btn-sm btn-danger delete-backup" data-id="2">
+                                                                <i class="fa-solid fa-trash"></i>
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Exports Tab -->
+                    <div class="tab-pane fade" id="exports">
+                        <div class="row mb-4">
+                            <div class="col-md-12">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5 class="mb-0">Danh Sách Exports</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="table-responsive">
+                                            <table class="table table-hover" id="exportsTable">
+                                                <thead>
+                                                    <tr>
+                                                        <th scope="col">Tên File</th>
+                                                        <th scope="col">Thiết Bị</th>
+                                                        <th scope="col">Kích Thước</th>
+                                                        <th scope="col">Ngày Tạo</th>
+                                                        <th scope="col">Loại</th>
+                                                        <th scope="col">Thao Tác</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td>export_20250310_080000.rsc</td>
+                                                        <td>Router Chính</td>
+                                                        <td>45 KB</td>
+                                                        <td>10/03/2025 08:00:00</td>
+                                                        <td>Full</td>
+                                                        <td>
+                                                            <button class="btn btn-sm btn-success download-export" data-id="1">
+                                                                <i class="fa-solid fa-download"></i>
+                                                            </button>
+                                                            <button class="btn btn-sm btn-primary restore-export" data-id="1">
+                                                                <i class="fa-solid fa-sync"></i>
+                                                            </button>
+                                                            <button class="btn btn-sm btn-secondary view-export" data-id="1">
+                                                                <i class="fa-solid fa-eye"></i>
+                                                            </button>
+                                                            <button class="btn btn-sm btn-danger delete-export" data-id="1">
+                                                                <i class="fa-solid fa-trash"></i>
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>export_20250309_080000.rsc</td>
+                                                        <td>Router Chính</td>
+                                                        <td>44 KB</td>
+                                                        <td>09/03/2025 08:00:00</td>
+                                                        <td>Compact</td>
+                                                        <td>
+                                                            <button class="btn btn-sm btn-success download-export" data-id="2">
+                                                                <i class="fa-solid fa-download"></i>
+                                                            </button>
+                                                            <button class="btn btn-sm btn-primary restore-export" data-id="2">
+                                                                <i class="fa-solid fa-sync"></i>
+                                                            </button>
+                                                            <button class="btn btn-sm btn-secondary view-export" data-id="2">
+                                                                <i class="fa-solid fa-eye"></i>
+                                                            </button>
+                                                            <button class="btn btn-sm btn-danger delete-export" data-id="2">
+                                                                <i class="fa-solid fa-trash"></i>
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Schedules Tab -->
+                    <div class="tab-pane fade" id="schedules">
+                        <div class="row mb-4">
+                            <div class="col-md-12">
+                                <div class="card">
+                                    <div class="card-header d-flex justify-content-between align-items-center">
+                                        <h5 class="mb-0">Lịch Backup Tự Động</h5>
+                                        <button type="button" id="addScheduleBtn" class="btn btn-sm btn-success">
+                                            <i class="fa-solid fa-plus me-1"></i> Thêm Lịch
+                                        </button>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="table-responsive">
+                                            <table class="table table-hover" id="schedulesTable">
+                                                <thead>
+                                                    <tr>
+                                                        <th scope="col">Tên</th>
+                                                        <th scope="col">Thiết Bị</th>
+                                                        <th scope="col">Tần Suất</th>
+                                                        <th scope="col">Lần Chạy Tiếp Theo</th>
+                                                        <th scope="col">Trạng Thái</th>
+                                                        <th scope="col">Thao Tác</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td>Backup Hàng Ngày</td>
+                                                        <td>Router Chính</td>
+                                                        <td>Hàng ngày, 03:00</td>
+                                                        <td>11/03/2025 03:00:00</td>
+                                                        <td><span class="badge bg-success">Đang hoạt động</span></td>
+                                                        <td>
+                                                            <button class="btn btn-sm btn-primary edit-schedule" data-id="1">
+                                                                <i class="fa-solid fa-edit"></i>
+                                                            </button>
+                                                            <button class="btn btn-sm btn-warning toggle-schedule" data-id="1" data-active="true">
+                                                                <i class="fa-solid fa-pause"></i>
+                                                            </button>
+                                                            <button class="btn btn-sm btn-danger delete-schedule" data-id="1">
+                                                                <i class="fa-solid fa-trash"></i>
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Backup Hàng Tuần</td>
+                                                        <td>Router Phòng Kỹ Thuật</td>
+                                                        <td>Hàng tuần, Chủ Nhật 04:00</td>
+                                                        <td>16/03/2025 04:00:00</td>
+                                                        <td><span class="badge bg-warning">Tạm dừng</span></td>
+                                                        <td>
+                                                            <button class="btn btn-sm btn-primary edit-schedule" data-id="2">
+                                                                <i class="fa-solid fa-edit"></i>
+                                                            </button>
+                                                            <button class="btn btn-sm btn-success toggle-schedule" data-id="2" data-active="false">
+                                                                <i class="fa-solid fa-play"></i>
+                                                            </button>
+                                                            <button class="btn btn-sm btn-danger delete-schedule" data-id="2">
+                                                                <i class="fa-solid fa-trash"></i>
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Create Backup Modal -->
+    <div class="modal fade" id="createBackupModal" tabindex="-1" aria-labelledby="createBackupModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="createBackupModalLabel">Tạo Backup Mới</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="createBackupForm">
+                        <div class="mb-3">
+                            <label for="backupDevice" class="form-label">Thiết Bị</label>
+                            <select class="form-select" id="backupDevice" name="backupDevice" required>
+                                <option value="1">Router Chính</option>
+                                <option value="2">Router Phòng Kỹ Thuật</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="backupName" class="form-label">Tên Backup</label>
+                            <input type="text" class="form-control" id="backupName" name="backupName" placeholder="Để trống để sử dụng tên mặc định">
+                            <div class="form-text">Mặc định: backup_YYYYMMDD_HHMMSS.backup</div>
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="includeSensitive" name="includeSensitive">
+                            <label class="form-check-label" for="includeSensitive">Bao Gồm Thông Tin Nhạy Cảm</label>
+                            <div class="form-text">Bao gồm mật khẩu và khóa bảo mật trong backup</div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="button" class="btn btn-primary" id="confirmCreateBackupBtn">Tạo Backup</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Export Modal -->
+    <div class="modal fade" id="createExportModal" tabindex="-1" aria-labelledby="createExportModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="createExportModalLabel">Xuất Cấu Hình</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="createExportForm">
+                        <div class="mb-3">
+                            <label for="exportDevice" class="form-label">Thiết Bị</label>
+                            <select class="form-select" id="exportDevice" name="exportDevice" required>
+                                <option value="1">Router Chính</option>
+                                <option value="2">Router Phòng Kỹ Thuật</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="exportName" class="form-label">Tên File</label>
+                            <input type="text" class="form-control" id="exportName" name="exportName" placeholder="Để trống để sử dụng tên mặc định">
+                            <div class="form-text">Mặc định: export_YYYYMMDD_HHMMSS.rsc</div>
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="exportCompact" name="exportCompact">
+                            <label class="form-check-label" for="exportCompact">Compact</label>
+                            <div class="form-text">Tạo bản export nhỏ gọn</div>
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="exportSensitive" name="exportSensitive">
+                            <label class="form-check-label" for="exportSensitive">Bao Gồm Thông Tin Nhạy Cảm</label>
+                            <div class="form-text">Bao gồm mật khẩu và khóa bảo mật trong file export</div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="button" class="btn btn-primary" id="confirmCreateExportBtn">Xuất Cấu Hình</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upload Backup Modal -->
+    <div class="modal fade" id="uploadBackupModal" tabindex="-1" aria-labelledby="uploadBackupModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="uploadBackupModalLabel">Tải Lên Backup</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="uploadBackupForm">
+                        <div class="mb-3">
+                            <label for="uploadDevice" class="form-label">Thiết Bị</label>
+                            <select class="form-select" id="uploadDevice" name="uploadDevice" required>
+                                <option value="1">Router Chính</option>
+                                <option value="2">Router Phòng Kỹ Thuật</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="backupFile" class="form-label">File Backup</label>
+                            <input type="file" class="form-control" id="backupFile" name="backupFile" accept=".backup,.rsc" required>
+                            <div class="form-text">Hỗ trợ file .backup và .rsc</div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="button" class="btn btn-primary" id="confirmUploadBtn">Tải Lên</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Schedule Modal -->
+    <div class="modal fade" id="scheduleModal" tabindex="-1" aria-labelledby="scheduleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="scheduleModalLabel">Thêm Lịch Backup</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="scheduleForm">
+                        <input type="hidden" id="scheduleId" name="scheduleId">
+                        <div class="mb-3">
+                            <label for="scheduleName" class="form-label">Tên Lịch</label>
+                            <input type="text" class="form-control" id="scheduleName" name="scheduleName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="scheduleDevice" class="form-label">Thiết Bị</label>
+                            <select class="form-select" id="scheduleDevice" name="scheduleDevice" required>
+                                <option value="1">Router Chính</option>
+                                <option value="2">Router Phòng Kỹ Thuật</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="scheduleType" class="form-label">Tần Suất</label>
+                            <select class="form-select" id="scheduleType" name="scheduleType" required>
+                                <option value="daily">Hàng Ngày</option>
+                                <option value="weekly">Hàng Tuần</option>
+                                <option value="monthly">Hàng Tháng</option>
+                            </select>
+                        </div>
+                        <div class="mb-3" id="weekdaySelectField">
+                            <label for="scheduleWeekday" class="form-label">Ngày Trong Tuần</label>
+                            <select class="form-select" id="scheduleWeekday" name="scheduleWeekday">
+                                <option value="1">Thứ Hai</option>
+                                <option value="2">Thứ Ba</option>
+                                <option value="3">Thứ Tư</option>
+                                <option value="4">Thứ Năm</option>
+                                <option value="5">Thứ Sáu</option>
+                                <option value="6">Thứ Bảy</option>
+                                <option value="0">Chủ Nhật</option>
+                            </select>
+                        </div>
+                        <div class="mb-3" id="monthlySelectField">
+                            <label for="scheduleDay" class="form-label">Ngày Trong Tháng</label>
+                            <select class="form-select" id="scheduleDay" name="scheduleDay">
+                                <option value="1">Ngày 1</option>
+                                <option value="15">Ngày 15</option>
+                                <option value="last">Ngày cuối tháng</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="scheduleTime" class="form-label">Thời Gian</label>
+                            <input type="time" class="form-control" id="scheduleTime" name="scheduleTime" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="scheduleRetention" class="form-label">Số Lượng Backup Lưu Trữ</label>
+                            <input type="number" class="form-control" id="scheduleRetention" name="scheduleRetention" min="1" max="100" value="7">
+                            <div class="form-text">Số lượng backup tự động tối đa được lưu trữ trước khi xóa các backup cũ</div>
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="scheduleIncludeSensitive" name="scheduleIncludeSensitive">
+                            <label class="form-check-label" for="scheduleIncludeSensitive">Bao Gồm Thông Tin Nhạy Cảm</label>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="button" class="btn btn-primary" id="saveScheduleBtn">Lưu Lịch</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Export Modal -->
+    <div class="modal fade" id="viewExportModal" tabindex="-1" aria-labelledby="viewExportModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="viewExportModalLabel">Xem Nội Dung Export</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <pre id="exportContent" class="bg-light p-3" style="max-height: 400px; overflow-y: auto;"></pre>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
+    <script src="/static/js/backup/manager.js"></script>
+</body>
+</html>
