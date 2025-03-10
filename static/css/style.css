@@ -1,0 +1,99 @@
+/* General Styles */
+body {
+    background-color: #f8f9fa;
+    color: #212529;
+}
+
+/* Directory Tree Styling */
+.directory-tree {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 5px;
+    overflow-x: auto;
+    white-space: pre;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    color: #212529;
+}
+
+/* Chart container */
+.chart-container {
+    position: relative;
+    height: 220px;
+    margin-bottom: 20px;
+}
+
+/* Card styling */
+.card {
+    border: none;
+    border-radius: 0.5rem;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 .5rem 1rem rgba(0,0,0,.15) !important;
+}
+
+/* Sticky sidebar */
+.sticky-top {
+    z-index: 1000;
+}
+
+/* Accordion customization */
+.accordion-button:not(.collapsed) {
+    background-color: #e7f1ff;
+    color: #0d6efd;
+}
+
+.accordion-button:focus {
+    box-shadow: none;
+    border-color: rgba(0,0,0,.125);
+}
+
+/* Loading spinner customization */
+.spinner-border {
+    width: 3rem;
+    height: 3rem;
+}
+
+/* Breadcrumb customization */
+.breadcrumb {
+    background-color: transparent;
+    padding: 0.75rem 0;
+}
+
+/* Table customization */
+.table-responsive {
+    overflow-x: auto;
+}
+
+/* File path styling in accordion */
+.accordion-button {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.9rem;
+}
+
+/* List group customization */
+.list-group-item {
+    border-left: 0;
+    border-right: 0;
+    padding: 1rem;
+}
+
+.list-group-item:first-child {
+    border-top: 0;
+}
+
+/* Function list styling */
+.accordion-body ul {
+    padding-left: 1.5rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .sticky-top {
+        position: relative;
+    }
+}
