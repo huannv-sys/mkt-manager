@@ -1,0 +1,30 @@
+2025-03-10 09:00:43 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.31.128.96:5000
+2025-03-10 09:00:43 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-03-10 09:00:43 - werkzeug - INFO -  * Restarting with stat
+2025-03-10 09:00:43 - werkzeug - WARNING -  * Debugger is active!
+2025-03-10 09:00:43 - werkzeug - INFO -  * Debugger PIN: 189-610-183
+2025-03-10 09:00:48 - werkzeug - INFO - 172.31.128.96 - - [10/Mar/2025 09:00:48] "[32mGET / HTTP/1.1[0m" 302 -
+2025-03-10 09:00:48 - werkzeug - INFO - 172.31.128.96 - - [10/Mar/2025 09:00:48] "GET /login HTTP/1.1" 200 -
+2025-03-10 09:00:48 - werkzeug - INFO - 172.31.128.96 - - [10/Mar/2025 09:00:48] "GET /static/css/styles.css HTTP/1.1" 200 -
+2025-03-10 09:01:55 - werkzeug - INFO - 172.31.128.96 - - [10/Mar/2025 09:01:55] "[32mGET / HTTP/1.1[0m" 302 -
+2025-03-10 09:01:55 - werkzeug - INFO - 172.31.128.96 - - [10/Mar/2025 09:01:55] "[32mGET / HTTP/1.1[0m" 302 -
+2025-03-10 09:01:56 - werkzeug - INFO - 172.31.128.96 - - [10/Mar/2025 09:01:56] "GET /login HTTP/1.1" 200 -
+2025-03-10 09:01:56 - werkzeug - INFO - 172.31.128.96 - - [10/Mar/2025 09:01:56] "GET /static/css/styles.css HTTP/1.1" 200 -
+2025-03-10 09:01:57 - werkzeug - INFO - 172.31.128.96 - - [10/Mar/2025 09:01:57] "GET /login HTTP/1.1" 200 -
+2025-03-10 09:01:58 - werkzeug - INFO - 172.31.128.96 - - [10/Mar/2025 09:01:58] "GET /static/css/styles.css HTTP/1.1" 200 -
+2025-03-10 09:02:24 - werkzeug - INFO - 172.31.128.96 - - [10/Mar/2025 09:02:24] "[32mPOST /login HTTP/1.1[0m" 302 -
+2025-03-10 09:02:25 - werkzeug - INFO - 172.31.128.96 - - [10/Mar/2025 09:02:25] "[35m[1mGET / HTTP/1.1[0m" 500 -
+2025-03-10 09:02:25 - werkzeug - INFO - 172.31.128.96 - - [10/Mar/2025 09:02:25] "[32mGET / HTTP/1.1[0m" 302 -
+2025-03-10 09:02:26 - werkzeug - INFO - 172.31.128.96 - - [10/Mar/2025 09:02:26] "GET /login HTTP/1.1" 200 -
+2025-03-10 09:02:26 - werkzeug - INFO - 172.31.128.96 - - [10/Mar/2025 09:02:26] "[36mGET /?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1[0m" 304 -
+2025-03-10 09:02:26 - werkzeug - INFO - 172.31.128.96 - - [10/Mar/2025 09:02:26] "[36mGET /?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
+2025-03-10 09:02:27 - werkzeug - INFO - 172.31.128.96 - - [10/Mar/2025 09:02:27] "[36mGET /static/css/styles.css HTTP/1.1[0m" 304 -
+2025-03-10 09:04:23 - werkzeug - INFO - 172.31.128.96 - - [10/Mar/2025 09:04:23] "[32mGET / HTTP/1.1[0m" 302 -
+2025-03-10 09:04:23 - werkzeug - INFO - 172.31.128.96 - - [10/Mar/2025 09:04:23] "[35m[1mGET / HTTP/1.1[0m" 500 -
+2025-03-10 09:04:24 - werkzeug - INFO - 172.31.128.96 - - [10/Mar/2025 09:04:24] "GET /login HTTP/1.1" 200 -
+2025-03-10 09:04:24 - werkzeug - INFO - 172.31.128.96 - - [10/Mar/2025 09:04:24] "[36mGET /?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1[0m" 304 -
+2025-03-10 09:04:24 - werkzeug - INFO - 172.31.128.96 - - [10/Mar/2025 09:04:24] "[36mGET /?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
+2025-03-10 09:04:25 - werkzeug - INFO - 172.31.128.96 - - [10/Mar/2025 09:04:25] "[36mGET /static/css/styles.css HTTP/1.1[0m" 304 -
