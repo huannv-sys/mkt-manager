@@ -548,6 +548,194 @@ def api_logs_system():
 
 # API cho các trang khác sẽ được thêm vào sau
 
+# API cho quản lý người dùng
+@app.route('/api/users', methods=['GET'])
+@admin_required
+def api_users():
+    # Mô phỏng danh sách người dùng
+    users = [
+        {
+            'id': '1',
+            'username': 'admin',
+            'email': 'admin@example.com',
+            'role': 'admin',
+            'created_at': '2025-03-01T08:00:00',
+            'last_login': '2025-03-10T08:00:00',
+            'status': 'active'
+        },
+        {
+            'id': '2',
+            'username': 'user',
+            'email': 'user@example.com',
+            'role': 'user',
+            'created_at': '2025-03-05T10:00:00',
+            'last_login': '2025-03-09T14:00:00',
+            'status': 'active'
+        },
+        {
+            'id': '3',
+            'username': 'viewer',
+            'email': 'viewer@example.com',
+            'role': 'viewer',
+            'created_at': '2025-03-08T09:00:00',
+            'last_login': '2025-03-10T07:00:00',
+            'status': 'active'
+        }
+    ]
+    return jsonify({'success': True, 'data': users})
+
+@app.route('/api/users', methods=['POST'])
+@admin_required
+def api_create_user():
+    try:
+        data = request.json
+        
+        # Validate required fields
+        required_fields = ['username', 'email', 'password', 'role']
+        for field in required_fields:
+            if field not in data:
+                return jsonify({'success': False, 'error': f'Thiếu trường {field}'})
+        
+        # TODO: Tạo người dùng mới trong cơ sở dữ liệu
+        # Mô phỏng tạo người dùng thành công
+        new_user = {
+            'id': '4',  # ID giả định
+            'username': data['username'],
+            'email': data['email'],
+            'role': data['role'],
+            'created_at': datetime.datetime.now().isoformat(),
+            'status': 'active'
+        }
+        
+        logger.info(f"Tạo người dùng mới: {data['username']}")
+        return jsonify({'success': True, 'data': new_user})
+    except Exception as e:
+        logger.error(f"Lỗi khi tạo người dùng: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)})
+
+@app.route('/api/users/<user_id>', methods=['PUT'])
+@admin_required
+def api_update_user(user_id):
+    try:
+        data = request.json
+        
+        # TODO: Cập nhật thông tin người dùng trong cơ sở dữ liệu
+        logger.info(f"Cập nhật người dùng {user_id}: {data}")
+        return jsonify({'success': True})
+    except Exception as e:
+        logger.error(f"Lỗi khi cập nhật người dùng: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)})
+
+@app.route('/api/users/<user_id>', methods=['DELETE'])
+@admin_required
+def api_delete_user(user_id):
+    try:
+        # TODO: Xóa người dùng khỏi cơ sở dữ liệu
+        logger.info(f"Xóa người dùng {user_id}")
+        return jsonify({'success': True})
+    except Exception as e:
+        logger.error(f"Lỗi khi xóa người dùng: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)})
+
+@app.route('/api/users/change-password', methods=['POST'])
+@login_required
+def api_change_password():
+    try:
+        data = request.json
+        
+        # Validate required fields
+        required_fields = ['current_password', 'new_password']
+        for field in required_fields:
+            if field not in data:
+                return jsonify({'success': False, 'error': f'Thiếu trường {field}'})
+        
+        # TODO: Xác thực mật khẩu hiện tại và cập nhật mật khẩu mới
+        logger.info("Đã thay đổi mật khẩu thành công")
+        return jsonify({'success': True})
+    except Exception as e:
+        logger.error(f"Lỗi khi thay đổi mật khẩu: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)})
+
+# Route cho xác thực
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    # Xử lý đăng nhập
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+        remember = 'remember' in request.form
+        
+        # Mô phỏng xác thực
+        if username == 'admin' and password == 'admin':
+            # Tạo token JWT và lưu vào session
+            token = utils.auth.generate_token('1', username, 'admin')
+            session['token'] = token
+            
+            if remember:
+                # Cài đặt cookie lâu dài (30 ngày)
+                session.permanent = True
+                app.permanent_session_lifetime = datetime.timedelta(days=30)
+            
+            # Redirect đến trang chính
+            return redirect(url_for('index'))
+        else:
+            # Đăng nhập thất bại
+            return render_template('auth/login.html', error='Tên đăng nhập hoặc mật khẩu không chính xác', current_year=datetime.datetime.now().year, version='1.0.0')
+    
+    # Hiển thị trang đăng nhập
+    return render_template('auth/login.html', current_year=datetime.datetime.now().year, version='1.0.0')
+
+@app.route('/logout')
+def logout():
+    # Xóa session
+    session.clear()
+    return redirect(url_for('login'))
+
+@app.route('/forgot-password', methods=['GET', 'POST'])
+def forgot_password():
+    # Xử lý yêu cầu reset mật khẩu
+    if request.method == 'POST':
+        email = request.form.get('email')
+        
+        # TODO: Gửi email reset mật khẩu
+        
+        # Thông báo thành công
+        return render_template('auth/forgot_password.html', success='Hướng dẫn đặt lại mật khẩu đã được gửi đến email của bạn.', current_year=datetime.datetime.now().year, version='1.0.0')
+    
+    # Hiển thị form quên mật khẩu
+    return render_template('auth/forgot_password.html', current_year=datetime.datetime.now().year, version='1.0.0')
+
+@app.route('/reset-password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    # TODO: Xác thực token và xử lý đặt lại mật khẩu
+    return redirect(url_for('login'))
+
+# Middleware để bảo vệ routes
+@app.before_request
+def check_authentication():
+    # Danh sách các routes không yêu cầu xác thực
+    public_routes = ['/login', '/logout', '/forgot-password', '/static', '/favicon.ico']
+    
+    # Cho phép truy cập các routes công khai
+    for route in public_routes:
+        if request.path.startswith(route):
+            return None
+    
+    # Kiểm tra xác thực cho các routes khác
+    if 'token' not in session:
+        return redirect(url_for('login'))
+    
+    # Xác thực token
+    user_data = utils.auth.decode_token(session['token'])
+    if not user_data:
+        session.clear()
+        return redirect(url_for('login'))
+    
+    # Lưu thông tin người dùng vào g để sử dụng trong request
+    g.user = user_data
+    
+    return None
+
 # Xử lý lỗi
 @app.errorhandler(404)
 def page_not_found(e):
@@ -555,7 +743,10 @@ def page_not_found(e):
 
 @app.errorhandler(500)
 def internal_server_error(e):
-    return render_template('errors/500.html'), 500
+    error_info = None
+    if app.debug:
+        error_info = str(e)
+    return render_template('errors/500.html', error_info=error_info, debug=app.debug), 500
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
