@@ -8,6 +8,7 @@ dependencies = [
     "bcrypt>=4.3.0",
     "flask>=3.1.0",
     "gitpython>=3.1.44",
+    "librouteros>=3.4.1",
     "pyjwt>=2.10.1",
     "pymongo>=4.11.2",
     "python-dotenv>=1.0.1",

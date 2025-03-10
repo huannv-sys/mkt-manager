@@ -383,6 +383,18 @@ wheels = [
 ]
 
 [[package]]
+name = "librouteros"
+version = "3.4.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "toml" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/82/94/8c2fa2c0eed0774626e4699ddf490778ef4c446339e4097329f8c6dee5a0/librouteros-3.4.1.tar.gz", hash = "sha256:132a377dc139486c7088f448407f0a1ef491cc90c265d7f4dd8612b128208665", size = 14259 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/61/e9/3bcf3825814facd0b9b86ed14a7f06137e65798c4358f9e9b62cd6ed7661/librouteros-3.4.1-py3-none-any.whl", hash = "sha256:6c3db733c7668eba6275a1d9105d9fbfc642d2d9b6e7ef1d6e6ce9df9bf1bec5", size = 16554 },
+]
+
+[[package]]
 name = "markupsafe"
 version = "3.0.2"
 source = { registry = "https://pypi.org/simple" }
@@ -640,6 +652,7 @@ dependencies = [
     { name = "bcrypt" },
     { name = "flask" },
     { name = "gitpython" },
+    { name = "librouteros" },
     { name = "pyjwt" },
     { name = "pymongo" },
     { name = "python-dotenv" },
@@ -656,6 +669,7 @@ requires-dist = [
     { name = "bcrypt", specifier = ">=4.3.0" },
     { name = "flask", specifier = ">=3.1.0" },
     { name = "gitpython", specifier = ">=3.1.44" },
+    { name = "librouteros", specifier = ">=3.4.1" },
     { name = "pyjwt", specifier = ">=2.10.1" },
     { name = "pymongo", specifier = ">=4.11.2" },
     { name = "python-dotenv", specifier = ">=1.0.1" },
@@ -688,6 +702,15 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/44/cd/a040c4b3119bbe532e5b0732286f805445375489fceaec1f48306068ee3b/smmap-5.0.2.tar.gz", hash = "sha256:26ea65a03958fa0c8a1c7e8c7a58fdc77221b8910f6be2131affade476898ad5", size = 22329 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/04/be/d09147ad1ec7934636ad912901c5fd7667e1c858e19d355237db0d0cd5e4/smmap-5.0.2-py3-none-any.whl", hash = "sha256:b30115f0def7d7531d22a0fb6502488d879e75b260a9db4d0819cfb25403af5e", size = 24303 },
+]
+
+[[package]]
+name = "toml"
+version = "0.10.2"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/be/ba/1f744cdc819428fc6b5084ec34d9b30660f6f9daaf70eead706e3203ec3c/toml-0.10.2.tar.gz", hash = "sha256:b3bda1d108d5dd99f4a20d24d9c348e91c4db7ab1b749200bded2f839ccbe68f", size = 22253 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/44/6f/7120676b6d73228c96e17f1f794d8ab046fc910d781c8d151120c3f1569e/toml-0.10.2-py2.py3-none-any.whl", hash = "sha256:806143ae5bfb6a3c6e736a764057db0e6a0e05e338b5630894a5f779cabb4f9b", size = 16588 },
 ]
 
 [[package]]
